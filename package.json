@@ -1,0 +1,8 @@
+{
+  "name": "zooming-framework",
+  "version": "0.0.1",
+  "devDependencies": {
+    "mocha": "1.4.2",
+    "chai": "1.2.0"
+  }
+}

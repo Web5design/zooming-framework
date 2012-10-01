@@ -1,0 +1,206 @@
+# Copyright 2012 Ben Vanik. All Rights Reserved.
+
+__author__ = 'ben.vanik@gmail.com (Ben Vanik)'
+
+
+# Master anvil-build BUILD file for zf
+
+
+# ------------------------------------------------------------------------------
+# Third Party
+# ------------------------------------------------------------------------------
+
+JS_COMPILER_JAR='third_party:closure_compiler_jar'
+
+# Closure externs files
+file_set(
+    name='closure_externs',
+    srcs=glob('externs/**/*.js'))
+
+
+# ------------------------------------------------------------------------------
+# JavaScript
+# ------------------------------------------------------------------------------
+
+file_set(
+    name='all_src_js',
+    srcs=glob('src/**/*.js'))
+
+file_set(
+    name='all_zf_js',
+    srcs=[
+        ':all_src_js',
+        ])
+
+file_set(
+    name='combined_zf_js',
+    srcs=[
+        'third_party:all_closure_js',
+        'third_party:all_goog_gestures_js',
+        ':all_zf_js',
+        ])
+
+# Testing support files
+file_set(
+    name='testing_files',
+    srcs=[
+        'node_modules/mocha/mocha.js',
+        'node_modules/mocha/mocha.css',
+        'node_modules/chai/chai.js',
+        ])
+
+SHARED_ENTRY_POINTS=[
+    'zf.exports',
+    ]
+
+SHARED_JS_FLAGS=[
+    '--define=zf.exports.ENABLE_EXPORTS=true',
+    ]
+
+RELEASE_JS_FLAGS=[
+    '--define=goog.DEBUG=false',
+    '--define=goog.asserts.ENABLE_ASSERTS=false',
+    '--use_types_for_optimization',
+    '--language_in=ECMASCRIPT5_STRICT',
+    #'--collapse_variable_declarations',
+    #'--collapse_anonymous_functions',
+    #'--collapse_properties',
+    #'--disambiguate_properties',
+    # rewrites things to be smaller but likely not better
+    # http://code.google.com/p/closure-compiler/source/browse/trunk/src/com/google/javascript/jscomp/FunctionRewriter.java
+    #'--rewrite_function_expressions=false',
+    # slow - may want disabled
+    #'--devirtualize_prototype_methods',
+    #'--devirtualize_prototype_methods=false',
+    ]
+
+# deps.js only
+closure_js_library(
+    name='zf_js_deps',
+    out='zf_js',
+    mode='DEPS',
+    entry_points=[
+        'zf.exports',
+    ],
+    srcs=[
+        'third_party:closure_uncompiled_js',
+        ':combined_zf_js',
+        ],
+    compiler_jar=JS_COMPILER_JAR)
+
+closure_js_library(
+    name='zf_js_uncompiled',
+    mode='UNCOMPILED',
+    entry_points=SHARED_ENTRY_POINTS,
+    srcs=[
+        'third_party:closure_uncompiled_js',
+        ':combined_zf_js',
+        ],
+    externs=[':closure_externs'],
+    compiler_jar=JS_COMPILER_JAR,
+    wrap_with_global='this')
+
+closure_js_library(
+    name='zf_js_compiled',
+    deps_out='zf_js',
+    mode='ADVANCED',
+    entry_points=SHARED_ENTRY_POINTS,
+    srcs=':combined_zf_js',
+    externs=[':closure_externs'],
+    compiler_jar=JS_COMPILER_JAR,
+    compiler_flags=SHARED_JS_FLAGS + RELEASE_JS_FLAGS,
+    wrap_with_global='this')
+
+file_set(
+    name='zf_debug',
+    srcs=[
+        ':zf_js_uncompiled',
+        ],
+    src_exclude_filter='*-deps.js')
+file_set(
+    name='zf_release',
+    srcs=[
+        ':zf_js_compiled',
+        ],
+    src_exclude_filter='*-deps.js')
+
+
+# ------------------------------------------------------------------------------
+# JS linting
+# ------------------------------------------------------------------------------
+
+closure_js_fixstyle(
+    name='all_js_fixstyle',
+    namespaces=['goog', 'zf',],
+    srcs=[':all_src_js'])
+
+closure_js_lint(
+    name='all_js_lint',
+    namespaces=['goog', 'zf',],
+    srcs=[':all_js_fixstyle'])
+
+
+# ------------------------------------------------------------------------------
+# Testing
+# ------------------------------------------------------------------------------
+
+shell_execute(
+    name='zf_js_test',
+    srcs=glob('src/**/*_test.js'),
+    deps=[':zf_js_deps'],
+    command=[
+        'node_modules/mocha/bin/mocha',
+        '--ui', 'tdd',
+        '--reporter', 'dot',
+        '--require', 'src/zf/bootstrap/mocha.js',
+        ])
+
+
+# ------------------------------------------------------------------------------
+# Target rules
+# ------------------------------------------------------------------------------
+
+file_set(
+    name='lint',
+    deps=':all_js_lint')
+
+file_set(
+    name='fixstyle',
+    deps=':all_js_fixstyle')
+
+file_set(
+    name='test',
+    deps=[':zf_js_test'])
+
+file_set(
+    name='deps',
+    srcs=[
+        ':zf_js_deps',
+        ])
+
+file_set(
+    name='fast',
+    deps=[
+        ':deps',
+        ])
+
+file_set(
+    name='debug',
+    srcs=[
+        ':deps',
+        ':zf_debug',
+        ])
+
+file_set(
+    name='release',
+    srcs=[
+        ':deps',
+        ':zf_release',
+        ],
+    deps=[
+        #':all_js_lint',
+        ])
+
+#archive_files(
+#    name='',
+#    srcs=[])

@@ -1,0 +1,16 @@
+/**
+ * Copyright 2012 Ben Vanik. All Rights Reserved.
+ *
+ * Use of this source code is governed by a BSD-style license that can be
+ * found in the LICENSE file.
+ */
+
+/**
+ * @fileoverview Shared example styles.
+ *
+ * @author ben.vanik@gmail.com (Ben Vanik)
+ */
+
+body {
+  margin: 0;
+}

@@ -1,0 +1,5 @@
+# Copyright 2012 Ben Vanik. All Rights Reserved.
+
+# Bash aliases
+
+alias anvil='./third_party/anvil-build/anvil/manage.py'

@@ -1,0 +1,38 @@
+# Copyright 2012 Ben Vanik. All Rights Reserved.
+
+__author__ = 'ben.vanik@gmail.com (Ben Vanik)'
+
+
+# Third party build rules
+# All other BUILD files should reference rules in here instead of directly into
+# third_party/ subpaths.
+
+
+# ------------------------------------------------------------------------------
+# Third Party
+# ------------------------------------------------------------------------------
+
+# Closure Library JS files
+file_set(
+    name='all_closure_js',
+    srcs=
+        glob('closure-library/closure/goog/**/*.js') +
+        glob('closure-library/third_party/closure/goog/**/*.js'))
+
+# Files required when deploying uncompiled builds
+file_set(
+    name='closure_uncompiled_js',
+    srcs=[
+        'closure-library/closure/goog/deps.js',
+        'closure-library/closure/goog/bootstrap/webworkers.js',
+        ])
+
+# Closure Compiler JAR
+file_set(
+    name='closure_compiler_jar',
+    srcs=['closure-compiler/compiler.jar'])
+
+# goog-gestures sources
+file_set(
+    name='all_goog_gestures_js',
+    srcs=glob('goog-gestures/src/**/*.js'))
