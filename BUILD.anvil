@@ -137,7 +137,7 @@ closure_js_fixstyle(
 closure_js_lint(
     name='all_js_lint',
     namespaces=['goog', 'zf',],
-    srcs=[':all_js_fixstyle'])
+    srcs=[':all_src_js'])
 
 
 # ------------------------------------------------------------------------------

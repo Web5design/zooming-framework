@@ -17,5 +17,13 @@
     # Do a full build
     anvil build :debug :release
 
-    # When updating goog.require/provide you must regen deps:
-    anvil build :deps
+    # When updating goog.require/provide or soy/gss you must regen:
+    anvil build :fast
+
+## Edit-reload
+
+Running the examples in uncompiled mode by appending `?uncompiled` to the URL
+will enable a nice edit-reload cycle. In most cases you can make changes and
+reload with no other actions needed. If you change a `goog.require` or
+`goog.provide` or modify a .soy or .gss file you'll need to do an
+`anvil build :fast` to update everything.
