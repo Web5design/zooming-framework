@@ -14,14 +14,14 @@ This is a project of love, done solely because I have an itch that needs scratch
     source zfrc
     anvil serve -p 8080 &
     anvil build :fast :debug :release
-    # open http://localhost:8080/examples/simple/simple.html?uncompiled
-    
+    open http://localhost:8080/examples/simple/simple.html?uncompiled
+
     # Edit-reload works, but run this if you change a goog.provide/require:
     anvil build :fast
-    
+
     # Build and copy the 'zf_js_compiled.js' file someplace:
     anvil deploy -o /tmp/foo/ :release
-    
+
 ## License
 
 BSD
