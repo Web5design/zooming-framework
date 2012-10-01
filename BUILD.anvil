@@ -194,11 +194,10 @@ file_set(
 file_set(
     name='release',
     srcs=[
-        ':deps',
         ':zf_release',
         ],
     deps=[
-        #':all_js_lint',
+        ':deps',
         ])
 
 #archive_files(
