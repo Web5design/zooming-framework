@@ -27,7 +27,7 @@ goog.provide('zf.math');
  */
 zf.math.grow = function(value, growthRate, opt_minimumGrowth) {
   var newValue = value * growthRate;
-  if (opt_minimumGrowth && (newValue - value) < opt_minimumGrowth {
+  if (opt_minimumGrowth && (newValue - value) < opt_minimumGrowth) {
     newValue += opt_minimumGrowth - (newValue - value);
   }
   return newValue;

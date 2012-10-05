@@ -53,5 +53,4 @@ goog.inherits(zf.render.canvas.CanvasRenderContext, zf.render.RenderContext);
  */
 zf.render.canvas.CanvasRenderContext.prototype.draw2d =
     function(frame, commandBuffer) {
-  //
 };
