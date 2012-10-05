@@ -13,6 +13,9 @@
 
 goog.provide('zf.render.canvas.CanvasRenderContext');
 
+goog.require('zf.render.RenderCap');
+goog.require('zf.render.RenderContext');
+
 
 
 /**

@@ -11,7 +11,11 @@
  * @author ben.vanik@gmail.com (Ben Vanik)
  */
 
+goog.provide('zf.render.Frame');
+goog.provide('zf.render.RenderCap');
 goog.provide('zf.render.RenderContext');
+
+goog.require('goog.Disposable');
 
 
 
@@ -32,7 +36,6 @@ zf.render.Frame = function() {
    */
   this.viewport = [0, 0, 0];
 };
-
 
 
 /**
