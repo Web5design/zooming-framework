@@ -13,14 +13,19 @@
 
 goog.provide('zf');
 
+/** @suppress {extraRequire} */
+goog.require('zf.version');
+
 
 /**
- * Version identifier.
- * TODO(benvanik): something sane
- * @const
- * @type {number}
+ * @define {boolean} Whether to enable exporting of the zf
+ *     types and namespace.
+ *
+ * This should only be enabled in builds of the standalone library. If you're
+ * including this code with it enabled in Closurized javascript then you'll
+ * prevent renaming.
  */
-zf.VERSION = 1;
+zf.ENABLE_EXPORTS = false;
 
 
 /**
@@ -35,29 +40,10 @@ zf.NODE = false;
  * @type {boolean}
  */
 zf.hasHighResolutionTimes =
+    zf.NODE ||
     !!(goog.global['performance'] && (
         goog.global['performance']['now'] ||
         goog.global['performance']['webkitNow']));
-
-
-/**
- * Returns the wall time that {@see zf#now} is relative to.
- * This is often the page load time.
- *
- * @return {number} A time, in ms.
- */
-zf.timebase = (function() {
-  var navigationStart = 0;
-  var performance = goog.global['performance'];
-  if (performance && performance['timing']) {
-    navigationStart = performance['timing']['navigationStart'];
-  } else {
-    navigationStart = +(new Date);
-  }
-  return function() {
-    return navigationStart;
-  };
-})();
 
 
 /**
@@ -72,26 +58,50 @@ zf.timebase = (function() {
  *      resolution (if supported).
  */
 zf.now = (function() {
+  if (zf.NODE) {
+    try {
+      var microtime = require('microtime');
+      var timebase = microtime['nowDouble']() * 1000;
+      return function zfNowMicrotime() {
+        return microtime['nowDouble']() * 1000 - timebase;
+      };
+    } catch (e) {
+      var hrtime = goog.global['process']['hrtime'];
+      var timeValue = hrtime();
+      var timebase = timeValue[0] * 1000 + timeValue[1] / 1000000;
+      return function zfNowHrtime() {
+        var timeValue = hrtime();
+        return (timeValue[0] * 1000 - timebase) + timeValue[1] / 1000000;
+      };
+    }
+  }
+
   // This dance is a little silly, but calling off of the closure object is
   // 2x+ faster than dereferencing the global and using a direct call instead of
   // a .call() is 2x+ on top of that.
   var performance = goog.global['performance'];
   if (performance && performance['now']) {
-    return function() {
+    return function zfNowPerformanceNow() {
       return performance['now']();
     };
   } else if (performance && performance['webkitNow']) {
-    return function() {
+    return function zfNowPerformanceWebkitNow() {
       return performance['webkitNow']();
     };
   } else {
-    var timebase = zf.timebase();
-    if (!Date.now) {
-      return function() {
-        return +new Date() - timebase;
-      };
-    } else {
-      return Date.now;
-    }
+    var timebase = Date.now();
+    return function zfNowDate() {
+      return Date.now() - timebase;
+    };
   }
 })();
+
+
+if (zf.ENABLE_EXPORTS) {
+  goog.exportSymbol(
+      'zf.hasHighResolutionTimes',
+      zf.hasHighResolutionTimes);
+  goog.exportSymbol(
+      'zf.now',
+      zf.now);
+}

@@ -22,8 +22,22 @@ goog.provide('zf.testing.mocha.run');
  */
 zf.testing.mocha.run = function() {
   var mocha = goog.global['mocha'];
-  mocha['run']();
+  mocha['run'](function() {
+    // Fired when tests have completed.
+    zf.testing.mocha.run.hasCompleted = true;
+    var mochaCompletionWaiter = goog.global['mochaCompletionWaiter'];
+    if (mochaCompletionWaiter) {
+      mochaCompletionWaiter();
+    }
+  });
 };
+
+
+/**
+ * Set to true when the mocha run has completed.
+ * @type {boolean}
+ */
+zf.testing.mocha.run.hasCompleted = false;
 
 
 zf.testing.mocha.run();

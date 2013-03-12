@@ -13,22 +13,21 @@
 # - All:
 #   - Git 1.7.5+
 #   - Python 2.6+
-#   - Python easy_install: http://pypi.python.org/pypi/setuptools
-#   - node.js v0.6.10+ (containing npm)
+#   - Python pip
+#   - node.js v0.8.0+ (containing npm)
 # - Linux:
 #   - apt-get
 # - OS X:
 #   - MacPorts: http://www.macports.org
 
-# TODO(benvanik): support cygwin somehow (existing script?)
 # TODO(benvanik): support OS X homebrew http://mxcl.github.com/homebrew/
 # TODO(benvanik): support other Linux package managers?
 
 # Ensure running as root (or on Cygwin, where it doesn't matter)
-if [ "$(id -u)" -ne 0 ]; then
+if [ "$(id -u)" -eq 0 ]; then
   if [ ! -e "/Cygwin.bat" ]; then
-    echo "This script must be run as root to install Python and system packages"
-    echo "Run with sudo!"
+    echo "This script should not be run as root!"
+    echo "Run without sudo!"
     exit 1
   fi
 fi
@@ -63,26 +62,45 @@ if [ "$PYTHON_CHECK" = "0" ]; then
 fi
 echo "     path: $(which python)"
 echo "  version: $PYTHON_VERSION"
-
-echo "- Python easy_install:"
-if [ ! -e "$(which easy_install)" ]; then
+echo ""
+echo "- Python pip:"
+if [ ! -e "$(which pip)" ]; then
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-  echo "! easy_install not found or not in PATH                                        !"
+  echo "! pip not found or not in PATH                                        !"
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-  echo "Grab the latest version from: http://pypi.python.org/pypi/setuptools"
-  exit 1
+  echo "Attemping to install via the system package manager..."
+  if [ "$(which easy_install)" ]; then
+    # Anything with easy_install (on OS X by default)
+    sudo easy_install pip
+  elif [ "$(which apt-get 2>/dev/null)" ]; then
+    # Linux (Ubuntu)
+    sudo apt-get install python-pip
+  elif [ "$(which port 2>/dev/null)" ]; then
+    # OS X (MacPorts)
+    sudo port selfupdate
+    sudo port install pip
+  # TODO(benvanik): support brew
+  else
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    echo "! No supported package manager found!                                          !"
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    echo " If on OS X ensure you install MacPorts (port) and run again"
+    echo " Or, manually install these packages:"
+    echo "   pip"
+    exit 1
+  fi
 fi
-echo "     path: $(which easy_install)"
-
-echo "- node.js 0.6.10+:"
+echo "     path: $(which pip)"
+echo ""
+echo "- node.js 0.8.0+:"
 if [ ! -e "$(which node)" ]; then
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-  echo "! node.js not found or not in PATH - at least version 0.6.10 is required       !"
+  echo "! node.js not found or not in PATH - at least version 0.8.0+ is required       !"
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
   echo "Grab the latest version from: http://nodejs.org/#download"
   exit 1
 fi
-NODE_CHECK=`node -e "var v = process.version.split('v')[1].split('.'); console.log(v[0] > 0 || v[1] > 6 || v[2] >= 10)"`
+NODE_CHECK=`node -e "var v = process.version.split('v')[1].split('.'); console.log(v[0] > 0 || v[1] > 8 || v[2] >= 0)"`
 NODE_VERSION=`node -e "console.log(process.version)"`
 if [ "$NODE_CHECK" = "false" ]; then
   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
@@ -101,30 +119,20 @@ echo ""
 # ==============================================================================
 echo "Fetching submodules..."
 
-git config core.sparsecheckout true
 git submodule init
 git submodule update
 
-echo ""
-# ==============================================================================
-# Closure linter
-# ==============================================================================
-echo "Installing Closure linter..."
+# On cygwin disable the filemode setting to prevent all the spurious +x diffs.
+# This cannot be set globally as git resets it each repo.
+if [ -e "/Cygwin.bat" ]; then
+  git config core.filemode false
+  git submodule foreach git config core.filemode false
+fi
 
-easy_install http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz
-
-echo ""
-# ==============================================================================
-# Python dependencies
-# ==============================================================================
-echo "Installing Python packages..."
-
-PYTHON_PACKAGES=(  )
-
-for p in ${PYTHON_PACKAGES[@]}
-do
-  easy_install $p
-done
+# Add an ignored gitignore to closure-linter, as the repo is missing one that
+# ignores .pyc files.
+echo '.gitignore' > third_party/closure-linter/.gitignore
+echo '*.pyc' >> third_party/closure-linter/.gitignore
 
 echo ""
 # =============================================================================
@@ -135,38 +143,46 @@ echo "Installing node modules..."
 npm install
 
 echo ""
+# =============================================================================
+# Anvil init
+# =============================================================================
+echo "Setting up anvil-build environment..."
+
+third_party/anvil-build/setup-local.sh
+
+echo ""
 # ==============================================================================
 # Content tools
 # ==============================================================================
 echo "Installing content tools..."
 
-SYSTEM_PACKAGES=(  )
+# SYSTEM_PACKAGES=(  )
 
-if [ "$(which apt-get 2>/dev/null)" ]; then
-  # Linux (Ubuntu)
-  for p in ${SYSTEM_PACKAGES[@]}
-  do
-    apt-get install $p
-  done
-elif [ "$(which port 2>/dev/null)" ]; then
-  # OS X (MacPorts)
-  port selfupdate
-  for p in ${SYSTEM_PACKAGES[@]}
-  do
-    port install $p
-  done
-else
-  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-  echo "! No supported package manager found!                                          !"
-  echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-  echo " If on OS X ensure you install MacPorts (port) and run again"
-  echo " Or, manually install these packages:"
-  for p in ${SYSTEM_PACKAGES[@]}
-  do
-    echo "   $p"
-  done
-fi
+# if [ "$(which apt-get 2>/dev/null)" ]; then
+#   # Linux (Ubuntu)
+#   for p in ${SYSTEM_PACKAGES[@]}
+#   do
+#     apt-get install $p
+#   done
+# elif [ "$(which port 2>/dev/null)" ]; then
+#   # OS X (MacPorts)
+#   port selfupdate
+#   for p in ${SYSTEM_PACKAGES[@]}
+#   do
+#     port install $p
+#   done
+# else
+#   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+#   echo "! No supported package manager found!                                          !"
+#   echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+#   echo " If on OS X ensure you install MacPorts (port) and run again"
+#   echo " Or, manually install these packages:"
+#   for p in ${SYSTEM_PACKAGES[@]}
+#   do
+#     echo "   $p"
+#   done
+# fi
 
-echo ""
+# echo ""
 
 source zfrc

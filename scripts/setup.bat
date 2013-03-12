@@ -21,25 +21,8 @@ REM Git submodules
 REM ============================================================================
 ECHO Fetching submodules...
 
-git config core.sparsecheckout true
 git submodule init
 git submodule update
-
-ECHO.
-REM ============================================================================
-REM Closure linter
-REM ============================================================================
-ECHO Installing Closure linter...
-
-easy_install http://closure-linter.googlecode.com/files/closure_linter-latest.tar.gz
-
-ECHO.
-REM ============================================================================
-REM Python dependencies
-REM ============================================================================
-ECHO Installing Python packages...
-
-FOR %%P IN () DO easy_install %%P
 
 ECHO.
 REM ============================================================================

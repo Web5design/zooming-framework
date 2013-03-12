@@ -10,10 +10,10 @@ This is a project of love, done solely because I have an itch that needs scratch
 
     git clone git@github.com:benvanik/zooming-framework.git
     cd zooming-framework/
-    sudo scripts/setup.sh
+    ./scripts/setup.sh
     source zfrc
-    anvil serve -p 8080 &
-    anvil build :fast :debug :release
+    anvil serve &
+    anvil build :fast :release
     open http://localhost:8080/examples/simple/simple.html?uncompiled
 
     # Edit-reload works, but run this if you change a goog.provide/require:

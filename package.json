@@ -1,8 +1,35 @@
 {
   "name": "zooming-framework",
-  "version": "0.0.1",
+  "version": "2013.3.11-1",
+  "description": "Zooming user interface framework.",
+  "keywords": [
+    "javascript",
+    "zui",
+    "zooming"
+  ],
+  "license": "BSD",
+  "homepage": "https://github.com/benvanik/zooming-framework",
+  "bugs": "https://github.com/benvanik/zooming-framework/issues",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/benvanik/zooming-framework.git"
+  },
+
+  "engines": {
+    "node": ">=0.8.14"
+  },
+
+  "scripts": {
+  },
+
+  "dependencies": {
+  },
   "devDependencies": {
     "mocha": "1.4.2",
-    "chai": "1.2.0"
+    "chai": "1.2.0",
+    "benchmark": "1.0.0"
+  },
+  "optionalDependencies": {
+    "microtime": "0.3.3"
   }
 }

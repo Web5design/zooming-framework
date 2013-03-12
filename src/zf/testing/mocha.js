@@ -30,6 +30,7 @@ zf.testing.mocha.setup_ = function() {
   // Note: if we wanted to augment the assertion library, this would be the
   // place to do it.
   // See: http://chaijs.com/guide/helpers/
+  var assert = goog.global['assert'];
 };
 
 zf.testing.mocha.setup_();

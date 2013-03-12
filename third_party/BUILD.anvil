@@ -36,3 +36,8 @@ file_set(
 file_set(
     name='all_goog_gestures_js',
     srcs=glob('goog-gestures/src/**/*.js'))
+
+# WTF shim sources
+file_set(
+    name='all_wtf_js',
+    srcs='wtf-trace-closure.js')

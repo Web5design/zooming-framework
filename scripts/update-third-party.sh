@@ -24,7 +24,7 @@ npm install
 # =============================================================================
 echo "Updating git modules..."
 
-SUBMODULES=( anvil-build closure-compiler closure-library )
+SUBMODULES=( anvil-build closure-compiler closure-library closure-linter )
 cd third_party
 for m in ${SUBMODULES[@]}
 do
@@ -40,3 +40,5 @@ for m in ${SUBMODULES[@]}
 do
   git add third_party/$m
 done
+
+echo ""
