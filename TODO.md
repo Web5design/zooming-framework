@@ -51,7 +51,6 @@ zf.zom
     - layoutMode
     - padding/margin/etc
     - transform
-    - matrix
     - children[]
     Fragment
       - root
@@ -59,5 +58,5 @@ zf.zom
       - backgroundColor
     TiledImage
       - tileSource
-  TransformManager
+  LayoutManager
 viewport1.setFragment(frag1);
