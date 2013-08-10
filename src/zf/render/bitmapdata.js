@@ -36,7 +36,7 @@ zf.render.BitmapData = function(width, height, opt_premultiplied) {
    * @type {number}
    * @private
    */
-  this.width_ = width;
+  this.width_ = width | 0;
 
   /**
    * Height of the bitmap, in pixels.
@@ -65,7 +65,7 @@ zf.render.DomImageElement;
  * Bitmap data backed by a DOM element.
  * If an image is provided it must be fully loaded.
  *
- * @param {zf.render.DomImageElement} element Image element.
+ * @param {!zf.render.DomImageElement} element Image element.
  * @param {boolean=} opt_premultiplied Whether the alpha channel is
  *     already premultiplied.
  * @constructor

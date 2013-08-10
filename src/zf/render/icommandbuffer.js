@@ -53,6 +53,20 @@ zf.render.ICommandBuffer.prototype.reset = goog.nullFunction;
 
 
 /**
+ * Gets the number of layers in the command buffer.
+ * @return {number} Total layer count.
+ */
+zf.render.ICommandBuffer.prototype.getLayerCount = goog.nullFunction;
+
+
+/**
+ * Gets a list of offsets into layer data in sorted order.
+ * @return {!Array.<number>} Layer offset indices.
+ */
+zf.render.ICommandBuffer.prototype.getLayerIndices = goog.nullFunction;
+
+
+/**
  * Adds a slice layer to the command buffer.
  * If the layer has flaps then that must be indicated in flags and the blend
  * matrix must be passed. If the layer is unflapped then the center opacity
@@ -64,7 +78,7 @@ zf.render.ICommandBuffer.prototype.reset = goog.nullFunction;
  * @param {number} h Height, in scene coordiantes.
  * @param {number} drawOrder Integer draw order.
  * @param {number} color RGBA color.
- * @param {number} surfaceId Surface ID.
+ * @param {!zf.render.Texture} texture Texture.
  * @param {number} tu0 Texture coordinate TU 0.
  * @param {number} tv0 Texture coordinate TV 0.
  * @param {number} tu1 Texture coordinate TU 1.

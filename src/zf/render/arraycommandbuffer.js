@@ -15,6 +15,7 @@ goog.provide('zf.render.ArrayCommandBuffer');
 
 goog.require('zf.math');
 goog.require('zf.render.ICommandBuffer');
+goog.require('zf.render.LayerFlag');
 
 
 
@@ -46,11 +47,27 @@ zf.render.ArrayCommandBuffer = function() {
   this.layerOffsets_ = [];
 
   /**
-   * Current slice layer index; an index into the {@see #sliceOffsets_} list.
+   * Current slice layer index; an index into the {@see #layerOffsets_} list.
    * @type {number}
    * @private
    */
   this.layerIndex_ = 0;
+
+  /**
+   * The indices of all layers that have blending flaps.
+   * Note that this must also be sorted whenever {@see #layerOffsets_} is
+   * sorted.
+   * @type {!Array.<number>}
+   * @private
+   */
+  this.flappedLayerOffsets_ = [];
+
+  /**
+   * Current layer index into {@see #flappedLayerOffsets_}.
+   * @type {number}
+   * @private
+   */
+  this.flappedLayerIndex_ = 0;
 
   /**
    * Whether the slices layer are sorted by draw order.
@@ -79,7 +96,7 @@ zf.render.ArrayCommandBuffer = function() {
    * - float: h
    * - uint: drawOrder
    * - uint: color rgba (3b tint | 1b opacity)
-   * - uint: surfaceId
+   * - zf.render.Texture: texture
    * - float: tu0
    * - float: tv0
    * - float: tu1
@@ -115,7 +132,7 @@ zf.render.ArrayCommandBuffer.GROWTH_RATE_ = 2;
  * @type {number}
  * @private
  */
-zf.render.ArrayCommandBuffer.SIZE_PER_LAYER_ = 20;
+zf.render.ArrayCommandBuffer.SIZE_PER_LAYER_ = 21;
 
 
 /**
@@ -125,7 +142,7 @@ zf.render.ArrayCommandBuffer.SIZE_PER_LAYER_ = 20;
  * @private
  */
 zf.render.ArrayCommandBuffer.DEFAULT_CAPACITY_ =
-    zf.render.ArrayCommandBuffer.SIZE_PER_LAYER_ * 100;
+    zf.render.ArrayCommandBuffer.SIZE_PER_LAYER_ * 128;
 
 
 /**
@@ -133,9 +150,54 @@ zf.render.ArrayCommandBuffer.DEFAULT_CAPACITY_ =
  */
 zf.render.ArrayCommandBuffer.prototype.reset = function() {
   this.layerIndex_ = 0;
+  this.flappedLayerIndex_ = 0;
   this.sortedByDrawOrder_ = true;
   this.lastDrawOrder_ = 0;
   this.dataOffset_ = 0;
+};
+
+
+/**
+ * @override
+ */
+zf.render.ArrayCommandBuffer.prototype.getLayerCount = function() {
+  return this.layerIndex_;
+};
+
+
+/**
+ * @override
+ */
+zf.render.ArrayCommandBuffer.prototype.getLayerIndices = function() {
+  return this.layerOffsets_;
+};
+
+
+/**
+ * Gets the raw layer data.
+ * @return {!Array} Layer data.
+ */
+zf.render.ArrayCommandBuffer.prototype.getLayerData = function() {
+  return this.data_;
+};
+
+
+/**
+ * Gets the number of layers with blending flaps.
+ * @return {number} Total number of layers with blending flaps.
+ */
+zf.render.ArrayCommandBuffer.prototype.getFlappedLayerCount = function() {
+  return this.flappedLayerIndex_;
+};
+
+
+/**
+ * Gets a list of offsets into layer data in sorted order for only layers
+ * with blending flaps.
+ * @return {!Array.<number>}
+ */
+zf.render.ArrayCommandBuffer.prototype.getFlappedLayerIndices = function() {
+  return this.flappedLayerOffsets_;
 };
 
 
@@ -157,11 +219,14 @@ zf.render.ArrayCommandBuffer.prototype.expand_ = function() {
  * @override
  */
 zf.render.ArrayCommandBuffer.prototype.appendSlice2d = function(
-    flags, x, y, w, h, drawOrder, color, surfaceId, tu0, tv0, tu1, tv1,
+    flags, x, y, w, h, drawOrder, color, texture, tu0, tv0, tu1, tv1,
     blendMatrix) {
   // Record the offset of the slice.
   var offset = this.dataOffset_;
   this.layerOffsets_[this.layerIndex_++] = offset;
+  if (flags & zf.render.LayerFlag.BLENDING_FLAPS) {
+    this.flappedLayerOffsets_[this.flappedLayerIndex_++] = offset;
+  }
 
   // Asjust offset, expanding if needed.
   if (offset + zf.render.ArrayCommandBuffer.SIZE_PER_LAYER_ >
@@ -178,14 +243,14 @@ zf.render.ArrayCommandBuffer.prototype.appendSlice2d = function(
 
   // Add to buffer.
   var a = this.data_;
-  a[offset + 0] = flags;
+  a[offset] = flags;
   a[offset + 1] = x;
   a[offset + 2] = y;
   a[offset + 3] = w;
   a[offset + 4] = h;
   a[offset + 5] = drawOrder | 0;
   a[offset + 6] = (tint << 24) | (opacity & 0xFF);
-  a[offset + 7] = surfaceId | 0;
+  a[offset + 7] = texture;
   a[offset + 8] = tu0;
   a[offset + 9] = tv0;
   a[offset + 10] = tu1;
@@ -212,4 +277,6 @@ zf.render.ArrayCommandBuffer.prototype.sortByDrawOrder = function() {
 
   // TODO(benvanik): zf.math.RadixSort or something to do a stateful radix sort.
   window.console.log('sorting not yet implemented');
+
+  // TODO(benvanik): also sort flappedLayerOffsets_
 };
