@@ -97,6 +97,22 @@ zf.now = (function() {
 })();
 
 
+/**
+ * Whether the current machine is little-endian.
+ * @return {boolean} True if the machine is little-endian. Otherwise it is
+ *     big-endian.
+ */
+zf.isLittleEndian = (function() {
+  var buffer32 = new Uint32Array([0x0A0B0C0D]);
+  var buffer8 = new Uint8Array(buffer32.buffer);
+  return (
+      buffer8[3] == 0x0A &&
+      buffer8[2] == 0x0B &&
+      buffer8[1] == 0x0C &&
+      buffer8[0] == 0x0D);
+})();
+
+
 if (zf.ENABLE_EXPORTS) {
   goog.exportSymbol(
       'zf.hasHighResolutionTimes',
@@ -104,4 +120,7 @@ if (zf.ENABLE_EXPORTS) {
   goog.exportSymbol(
       'zf.now',
       zf.now);
+  goog.exportSymbol(
+      'zf.isLittleEndian',
+      zf.isLittleEndian);
 }

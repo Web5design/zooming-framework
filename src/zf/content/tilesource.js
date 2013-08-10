@@ -47,8 +47,8 @@ zf.content.TilePresence = {
  * @param {number} tileHeight Height of the level in tiles.
  * @constructor
  */
-zf.content.LevelInfo =
-    function(pixelWidth, pixelHeight, tileWidth, tileHeight) {
+zf.content.LevelInfo = function(
+    pixelWidth, pixelHeight, tileWidth, tileHeight) {
   /**
    * Width, in pixels, of the level.
    * @type {number}
@@ -93,37 +93,43 @@ zf.content.TileSource = function(width, height, tileSize, opt_tileOverlap,
   /**
    * Total width, in pixels, of the image.
    * @type {number}
+   * @protected
    */
   this.width = width;
 
   /**
    * Total height, in pixels, of the image.
    * @type {number}
+   * @protected
    */
   this.height = height;
 
   /**
-   * Tile size (including overlap), in pixel.
+   * Tile size (including overlap), in pixels.
    * This should match the physical size of tiles in their files.
-   * @type {[type]}
+   * @type {number}
+   * @protected
    */
   this.tileSize = tileSize;
 
   /**
    * Number of overlap pixels in each tile, in pixels.
    * @type {number}
+   * @protected
    */
   this.tileOverlap = opt_tileOverlap || 0;
 
   /**
    * Number of border pixels along the outer border of the image, in pixels.
    * @type {number}
+   * @protected
    */
   this.imageBorder = opt_imageBorder || 0;
 
   /**
    * Total number of levels in the tile pyramid.
    * @type {number}
+   * @protected
    */
   this.levelCount = Math.ceil(Math.log(Math.max(width, height)) / Math.LN2) + 1;
 
@@ -131,6 +137,7 @@ zf.content.TileSource = function(width, height, tileSize, opt_tileOverlap,
   /**
    * Cached level information.
    * @type {!Array.<!zf.content.LevelInfo>}
+   * @protected
    */
   this.levelInfo = new Array(levelCount);
   for (var n = 0; n < levelCount; n++) {

@@ -105,7 +105,7 @@ zf.render.DomBitmapData.prototype.getElement = function() {
  * @extends {zf.render.PixelBitmapData}
  */
 zf.render.PixelBitmapData = function(width, height, format, opt_pixels) {
-  goog.base(this, width, height, format == zf.render.PixelFormat.RGBP8888);
+  goog.base(this, width, height, format == zf.render.PixelFormat.PBGR8888);
 
   /**
    * Pixel data format.
@@ -121,21 +121,21 @@ zf.render.PixelBitmapData = function(width, height, format, opt_pixels) {
    */
   this.bpp_ = 4;
   switch (format) {
-    case zf.render.PixelFormat.RGB565:
+    case zf.render.PixelFormat.BGR565:
       this.bpp_ = 2;
       break;
-    case zf.render.PixelFormat.RGB888:
+    case zf.render.PixelFormat.BGR888:
       this.bpp_ = 3;
       break;
-    case zf.render.PixelFormat.RGBA8888:
-    case zf.render.PixelFormat.RGBP8888:
+    case zf.render.PixelFormat.ABGR8888:
+    case zf.render.PixelFormat.PBGR8888:
       this.bpp_ = 4;
       break;
   }
 
   var pixels = opt_pixels;
   if (!pixels) {
-    if (format == zf.render.PixelFormat.RGB565) {
+    if (format == zf.render.PixelFormat.BGR565) {
       pixels = new Uint16Array(width * height);
     } else {
       pixels = new Uint8Array(width * height * this.bpp_);

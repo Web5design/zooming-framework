@@ -42,8 +42,9 @@ zf.content.TestTileSource = function(width, height, opt_tileSize,
   /**
    * Whether to draw debug text on tiles.
    * @type {boolean}
+   * @private
    */
-  this.debug = opt_debug || false;
+  this.debug_ = opt_debug || false;
 };
 goog.inherits(zf.content.TestTileSource, zf.content.TileSource);
 
@@ -87,6 +88,7 @@ zf.content.TestTileSource.prototype.createTile_ =
   var tileWidth = tileSize[0];
   var tileHeight = tileSize[1];
 
+  // TODO(benvanik): pooled reuse
   var canvas = /** @type {!HTMLCanvasElement} */ (
       goog.dom.createElement(goog.dom.TagName.CANVAS));
   canvas.width = tileWidth;
@@ -99,7 +101,7 @@ zf.content.TestTileSource.prototype.createTile_ =
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Draw debug text.
-  if (this.debug) {
+  if (this.debug_) {
     var debugText = level + '@' + tileX + ',' + tileY;
     ctx.fillStyle = 'rgb(255,255,255)';
     ctx.fillText(debugText, this.tileOverlap, this.tileOverlap + 8);

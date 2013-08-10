@@ -16,26 +16,27 @@ goog.provide('zf.render.PixelFormat');
 
 /**
  * Pixel format types.
+ * These are all described as on little-endian machines.
  * @enum {number}
  */
 zf.render.PixelFormat = {
   /**
-   * 24-bit RGB in R8G8B8 format.
+   * 24-bit RGB in B8G8R8 format.
    */
-  RGB888: 0,
+  BGR888: 0,
 
   /**
-   * 32-bit RGBA in R8G8B8A8 format.
+   * 32-bit RGBA in A8B8G8R8 format.
    */
-  RGBA8888: 1,
+  ABGR8888: 1,
 
   /**
-   * 32-bit RGBA in R8G8B8A8 format with premultiplied alpha.
+   * 32-bit RGBA in A8B8G8R8 format with premultiplied alpha.
    */
-  RGBP8888: 2,
+  PBGR8888: 2,
 
   /**
-   * 16-bit RGB R5G6B5 format.
+   * 16-bit RGB B5G6R5 format.
    */
-  RGB565: 3
+  BGR565: 3
 };
